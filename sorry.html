@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>I'm Sorry, My Love 🌸</title>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Nunito:wght@400;600;700;800&family=Playfair+Display:ital@0;1&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --pink:    #ff6b9d;
+      --pinkL:   #ffb3cc;
+      --pinkS:   #ffe0ec;
+      --rose:    #ff4081;
+      --lav:     #c9b1ff;
+      --cream:   #fff8f9;
+      --dark:    #3d1a30;
+      --mid:     #8b5070;
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif;background:var(--cream);color:var(--dark)}
+
+    /* ── CANVAS ── */
+    #hc{position:fixed;inset:0;pointer-events:none;z-index:0}
+
+    /* ── MUSIC BTN ── */
+    #mb{
+      position:fixed;top:1rem;right:1rem;z-index:200;
+      width:46px;height:46px;border-radius:50%;
+      background:rgba(255,255,255,.9);backdrop-filter:blur(8px);
+      border:2px solid var(--pinkL);font-size:1.2rem;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+      box-shadow:0 4px 18px rgba(255,107,157,.3);
+      transition:transform .2s;
+    }
+    #mb:hover{transform:scale(1.12)}
+
+    /* ── DOTS ── */
+    #dots{
+      position:fixed;bottom:1.2rem;left:50%;transform:translateX(-50%);
+      display:flex;gap:.5rem;z-index:200;
+    }
+    .dot{
+      width:9px;height:9px;border-radius:50%;
+      background:var(--pinkL);cursor:pointer;
+      transition:all .4s cubic-bezier(.34,1.56,.64,1);
+    }
+    .dot.on{width:26px;border-radius:99px;background:linear-gradient(90deg,var(--pink),var(--lav))}
+
+    /* ── PAGES WRAPPER ── */
+    #wrap{position:relative;z-index:1;width:100%;height:100vh}
+
+    /* ── EACH PAGE ── */
+    .pg{
+      position:absolute;inset:0;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      padding:2rem 1.5rem 4.5rem;text-align:center;
+      opacity:0;pointer-events:none;
+      /* sit off-screen right by default */
+      transform:translateX(100%);
+      transition:transform .65s cubic-bezier(.77,0,.175,1), opacity .65s ease;
+    }
+    /* active = centred */
+    .pg.cur{opacity:1;pointer-events:all;transform:translateX(0)}
+    /* leaving = off-screen left */
+    .pg.bye{opacity:0;pointer-events:none;transform:translateX(-100%)}
+
+    /* ── TYPOGRAPHY ── */
+    .badge{
+      display:inline-block;
+      background:linear-gradient(135deg,var(--pink),var(--lav));
+      color:#fff;font-size:.7rem;font-weight:800;
+      letter-spacing:.13em;text-transform:uppercase;
+      padding:.4rem 1rem;border-radius:99px;margin-bottom:1.2rem;
+      box-shadow:0 4px 14px rgba(255,107,157,.35);
+    }
+    .pg h1{
+      font-family:'Dancing Script',cursive;
+      font-size:clamp(2.4rem,7vw,4.8rem);font-weight:700;line-height:1.1;
+      background:linear-gradient(135deg,#ff2d7a,#c14ac8,#7b5ea7);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+      margin-bottom:.5rem;
+    }
+    .pg h2{
+      font-family:'Dancing Script',cursive;
+      font-size:clamp(1.6rem,4.5vw,2.8rem);
+      background:linear-gradient(135deg,#ff2d7a,#c14ac8);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+      margin-bottom:.9rem;
+    }
+    .pg p{font-size:clamp(.92rem,2.3vw,1.05rem);color:var(--mid);line-height:1.85;max-width:540px}
+
+    /* ── BUTTONS ── */
+    .btn{
+      display:inline-flex;align-items:center;gap:.5rem;
+      background:linear-gradient(135deg,#ff6b9d,#c14ac8);
+      color:#fff;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:800;
+      padding:.9rem 2.2rem;border-radius:99px;border:none;cursor:pointer;
+      margin-top:1.5rem;
+      box-shadow:0 8px 28px rgba(255,107,157,.4);
+      transition:transform .3s cubic-bezier(.34,1.56,.64,1),box-shadow .3s;
+    }
+    .btn:hover{transform:scale(1.07) translateY(-3px);box-shadow:0 14px 40px rgba(255,107,157,.5)}
+    .btn:active{transform:scale(.97)}
+    .btn.ghost{
+      background:transparent;border:2px solid var(--pinkL);
+      color:var(--mid);box-shadow:none;margin-top:.6rem;
+    }
+    .btn.ghost:hover{border-color:var(--pink);color:var(--pink);box-shadow:none}
+
+    /* ── PAGE BACKGROUNDS ── */
+    #p1{background:radial-gradient(ellipse at 30% 30%,#ffe0f0 0%,transparent 55%),
+                   radial-gradient(ellipse at 75% 80%,#e8d5ff 0%,transparent 55%),
+                   linear-gradient(160deg,#fff0f6,#fff8ff,#f0eaff)}
+    #p2{background:linear-gradient(160deg,#fff5fa,#f5f0ff)}
+    #p3{background:linear-gradient(160deg,#fff0f8,#f0e8ff);overflow-y:auto;justify-content:flex-start;padding-top:2.5rem}
+    #p4{background:linear-gradient(135deg,#ffe5f1,#f0e5ff);overflow:hidden}
+    #p5{background:linear-gradient(160deg,#fff5fa,#f7f0ff)}
+    #p6{background:radial-gradient(ellipse at 50% 0%,#ffe0f0,transparent 60%),linear-gradient(180deg,#f7f0ff,#fff5fa)}
+    #p7{background:radial-gradient(ellipse at 40% 30%,#ffe0f2,transparent 58%),
+                   radial-gradient(ellipse at 70% 70%,#e8d5ff,transparent 58%),
+                   linear-gradient(160deg,#fff0f6,#f0eaff)}
+
+    /* ── BEAR ── */
+    .bear{
+      width:min(240px,68vw);border-radius:20px;margin:.8rem 0 1.2rem;
+      border:4px solid rgba(255,255,255,.85);
+      box-shadow:0 14px 44px rgba(255,107,157,.26);
+      animation:fbear 4s ease-in-out infinite;
+    }
+    @keyframes fbear{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-11px) rotate(1deg)}}
+    .wig{animation:wig 2s ease-in-out infinite;font-size:2.2rem;display:block;margin-bottom:.7rem}
+    @keyframes wig{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
+
+    /* ── LETTER ── */
+    .lcard{
+      max-width:620px;width:100%;background:#fff;border-radius:22px;
+      padding:clamp(1.6rem,5vw,2.6rem);
+      box-shadow:0 8px 36px rgba(255,107,157,.12);
+      border:2px solid rgba(255,179,204,.4);
+      margin-top:1rem;text-align:left;position:relative;
+    }
+    .lcard::before{content:'💌';position:absolute;top:-17px;left:50%;transform:translateX(-50%);font-size:1.9rem;background:#fff;padding:0 .4rem;border-radius:50%;box-shadow:0 3px 12px rgba(255,107,157,.25)}
+    .ltop{position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,var(--pink),var(--lav),var(--pink));border-radius:22px 22px 0 0}
+    .lbody{font-size:clamp(.9rem,2.1vw,1rem);line-height:1.9;color:var(--dark);margin-top:.5rem}
+    .lbody p{margin-bottom:.9rem}
+    .hl{color:var(--rose);font-weight:700}
+    .it{font-style:italic;color:var(--mid)}
+    .lsign{font-family:'Dancing Script',cursive;font-size:1.6rem;color:var(--pink);text-align:right;margin-top:.3rem}
+
+    /* ── PROMISES ── */
+    .grid{
+      display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+      gap:.9rem;max-width:780px;width:100%;margin:1rem 0;
+    }
+    .card{
+      background:#fff;border-radius:16px;padding:1.2rem 1rem;text-align:center;
+      box-shadow:0 3px 18px rgba(255,107,157,.1);border:1.5px solid rgba(255,179,204,.3);
+      transition:transform .35s cubic-bezier(.34,1.56,.64,1),box-shadow .35s;
+    }
+    .card:hover{transform:translateY(-7px) scale(1.03);box-shadow:0 12px 36px rgba(255,107,157,.2)}
+    .card .em{font-size:2rem;display:block;margin-bottom:.4rem;animation:bob 2.5s ease-in-out infinite}
+    @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+    .card h3{font-family:'Dancing Script',cursive;font-size:1.15rem;color:var(--pink);margin-bottom:.25rem}
+    .card p{font-size:.82rem;color:var(--mid);line-height:1.55}
+
+    /* ── TICKER ── */
+    .trow{width:100%;overflow:hidden;margin:.7rem 0}
+    .ttrack{display:flex;gap:1rem;width:max-content;animation:tick 26s linear infinite}
+    .ttrack:hover{animation-play-state:paused}
+    .ttrack.rev{animation-direction:reverse}
+    @keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+    .pill{
+      flex-shrink:0;background:#fff;border:2px solid rgba(255,107,157,.25);
+      border-radius:99px;padding:.55rem 1.2rem;font-size:.88rem;
+      color:var(--dark);font-weight:600;white-space:nowrap;
+      display:flex;gap:.45rem;align-items:center;
+      box-shadow:0 2px 10px rgba(255,107,157,.09);
+    }
+
+    /* ── MOOD ── */
+    .mrow{display:flex;gap:.9rem;flex-wrap:wrap;justify-content:center;margin:1rem 0}
+    .mbt{
+      background:#fff;border:2px solid rgba(255,107,157,.3);border-radius:14px;
+      padding:.8rem 1rem;font-size:1.55rem;cursor:pointer;
+      transition:all .3s cubic-bezier(.34,1.56,.64,1);
+      box-shadow:0 3px 10px rgba(255,107,157,.1);
+    }
+    .mbt:hover,.mbt.on{transform:scale(1.28) translateY(-4px);border-color:var(--pink);background:var(--pinkS);box-shadow:0 10px 24px rgba(255,107,157,.26)}
+    #mrsp{font-family:'Dancing Script',cursive;font-size:1.4rem;color:var(--pink);min-height:2rem;transition:opacity .5s;opacity:0}
+    #mrsp.show{opacity:1}
+
+    /* ── FORGIVE PAGE ── */
+    .bq{font-size:clamp(3rem,9vw,5.5rem);animation:hb .85s ease-in-out infinite alternate;display:block;margin-bottom:.4rem}
+    @keyframes hb{from{transform:scale(1)}to{transform:scale(1.18)}}
+    #nc{font-size:.8rem;color:var(--pink);font-weight:700;margin-top:.4rem;min-height:1.3rem}
+    @keyframes shk{0%,100%{transform:translateX(0)}15%{transform:translateX(-9px) rotate(-2deg)}35%{transform:translateX(8px) rotate(2deg)}55%{transform:translateX(-6px)}75%{transform:translateX(5px)}90%{transform:translateX(-2px)}}
+    .shk{animation:shk .5s ease}
+
+    /* ── FINAL PAGE ── */
+    .yh{font-size:clamp(3.5rem,11vw,6.5rem);animation:hb .7s ease-in-out infinite alternate;display:block;margin-bottom:.3rem}
+
+    /* ── CONFETTI ── */
+    #cf{position:fixed;inset:0;pointer-events:none;z-index:50}
+    @keyframes cf{from{transform:translateY(0) scale(1) rotate(0deg);opacity:1}to{transform:translateY(65vh) scale(.25) rotate(720deg);opacity:0}}
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar{width:5px}
+    ::-webkit-scrollbar-track{background:#fff0f6}
+    ::-webkit-scrollbar-thumb{background:var(--pinkL);border-radius:99px}
+  </style>
+</head>
+<body>
+
+<canvas id="hc"></canvas>
+<button id="mb" onclick="toggleMusic()" title="Toggle music">🎵</button>
+<div id="dots"></div>
+<div id="cf"></div>
+
+<div id="wrap">
+
+  <!-- PAGE 1 -->
+  <div class="pg cur" id="p1">
+    <span class="badge">💌 A message from the heart</span>
+    <span class="wig">🌸 🦋 🌷</span>
+    <h1>I'm So Sorry,<br/>My Love</h1>
+    <p>Before you close this — please give me just a few moments.<br/>I have something important to say. 💕</p>
+    <img src="sorry_bear_1776455586047.png" alt="Sorry bear" class="bear" onerror="this.style.display='none'" />
+    <button class="btn" onclick="goTo(1)"><span>💌 Open My Letter →</span></button>
+  </div>
+
+  <!-- PAGE 2 -->
+  <div class="pg" id="p2">
+    <h2>A Letter From My Heart 💌</h2>
+    <div class="lcard">
+      <div class="ltop"></div>
+      <div class="lbody">
+        <p>Hey, my love 🌷</p>
+        <p>I've been trying to find the perfect words — but no words feel big enough for how truly sorry I am. I <span class="hl">messed up</span>, and I know it. I hurt you, and that's the last thing I ever wanted to do.</p>
+        <p>You are the person who makes every single day feel painted in the softest colours. You are my favourite song on repeat, my favourite chapter in every book, my favourite everything. <span class="it">And I was careless with something so precious.</span></p>
+        <p>I'm not asking you to forget. I'm asking for the chance to <span class="hl">do better</span> — because you deserve someone who shows up completely. I want so badly to be that person for you.</p>
+        <p class="it">My love for you has never wavered. If anything, this made me realise how much I can't imagine a single day without you. 🌸</p>
+        <div class="lsign">— Yours, always 💕</div>
+      </div>
+    </div>
+    <button class="btn" onclick="goTo(2)" style="margin-top:1rem">My Promises →</button>
+  </div>
+
+  <!-- PAGE 3 -->
+  <div class="pg" id="p3">
+    <h2>My Promises to You 🌟</h2>
+    <div class="grid">
+      <div class="card"><span class="em">👂</span><h3>Listen More</h3><p>Every word, every silence — I will pay attention.</p></div>
+      <div class="card"><span class="em">🤝</span><h3>Communicate</h3><p>No more bottling things. Honest and open, always.</p></div>
+      <div class="card"><span class="em">💪</span><h3>Do Better</h3><p>Not just today — every single day I'll try harder.</p></div>
+      <div class="card"><span class="em">❤️‍🔥</span><h3>Cherish You</h3><p>You'll never question my love. Not once.</p></div>
+      <div class="card"><span class="em">🌙</span><h3>Be Your Safe Place</h3><p>Warmth, comfort, joy — that's what I want to be.</p></div>
+      <div class="card"><span class="em">✨</span><h3>Never Take You For Granted</h3><p>Every day with you is a gift. I'll treat it like one.</p></div>
+    </div>
+    <button class="btn" onclick="goTo(3)">Why I Love You →</button>
+  </div>
+
+  <!-- PAGE 4 -->
+  <div class="pg" id="p4">
+    <h2>Why I Love You 💗</h2>
+    <p style="margin-bottom:.3rem">Here are just a <em>few</em> of the endless reasons…</p>
+    <div class="trow"><div class="ttrack" id="t1"></div></div>
+    <div class="trow"><div class="ttrack rev" id="t2"></div></div>
+    <button class="btn" onclick="goTo(4)" style="margin-top:1.2rem">How Are You Feeling? →</button>
+  </div>
+
+  <!-- PAGE 5 -->
+  <div class="pg" id="p5">
+    <h2>How Are You Feeling? 🌸</h2>
+    <p>Tap the emoji that matches your mood right now 👇</p>
+    <div class="mrow">
+      <button class="mbt" data-m="angry">😤</button>
+      <button class="mbt" data-m="sad">🥺</button>
+      <button class="mbt" data-m="think">🤔</button>
+      <button class="mbt" data-m="soft">🥰</button>
+      <button class="mbt" data-m="love">💖</button>
+    </div>
+    <div id="mrsp"></div>
+    <button class="btn" id="mn" onclick="goTo(5)" style="display:none;margin-top:.9rem">One More Thing →</button>
+  </div>
+
+  <!-- PAGE 6 -->
+  <div class="pg" id="p6">
+    <span class="bq">🥺</span>
+    <h1>Will You Forgive Me?</h1>
+    <p>I know I don't deserve it. But I'm asking with every piece of my heart. Just press the button, just once. 💝</p>
+    <button class="btn" onclick="handleYes()" style="margin-top:1.4rem">💖 Yes, I forgive you</button>
+    <button class="btn ghost" id="nb" onclick="handleNo()">Not yet 😔</button>
+    <div id="nc"></div>
+  </div>
+
+  <!-- PAGE 7 -->
+  <div class="pg" id="p7">
+    <span class="yh">💝</span>
+    <h1>Thank You!!</h1>
+    <p style="font-family:'Playfair Display',serif;font-style:italic;font-size:clamp(1rem,2.8vw,1.4rem);color:var(--mid);margin-top:.3rem">You just made me the happiest person alive.</p>
+    <p style="margin-top:1rem">I promise to hold your heart with the most gentle hands, every single day. You are my whole world, my safe place, my everything. 🌸✨</p>
+    <p style="margin-top:.7rem;font-family:'Dancing Script',cursive;font-size:1.5rem;color:var(--pink)">I love you, more than words could ever say. 💕</p>
+    <button class="btn" onclick="goTo(0)" style="background:linear-gradient(135deg,#c14ac8,#7b5ea7);margin-top:1.4rem">🌷 Read Again</button>
+  </div>
+
+</div><!-- /wrap -->
+
+<audio id="mus" loop>
+  <!-- Royalty-free romantic piano - pixabay CDN -->
+  <source src="/thousand_years.mp3" type="audio/mpeg"/>
+</audio>
+
+<script>
+/* ════════════════════════════════
+   NAVIGATION — class-only, no inline styles
+════════════════════════════════ */
+const pages = Array.from(document.querySelectorAll('.pg'));
+const TOTAL = pages.length;
+let cur  = 0;
+let busy = false;
+
+function goTo(next) {
+  if (busy || next === cur) return;
+  busy = true;
+
+  const from = pages[cur];
+  const to   = pages[next];
+
+  // Mark "to" as "right" (off-screen right = default .pg state, no cur/bye)
+  // First remove cur from "to" in case it somehow has it
+  to.classList.remove('cur', 'bye');
+
+  // Slide "from" off to the left
+  from.classList.remove('cur');
+  from.classList.add('bye');
+
+  // After a brief tick so the browser registers the starting position…
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      // bring "to" in from the right
+      to.classList.add('cur');
+      cur = next;
+      updateDots();
+
+      // clean up left-exited page after transition finishes
+      setTimeout(() => {
+        from.classList.remove('bye');
+        busy = false;
+        if (next === 6) burst(90);
+        tryMusic();
+      }, 700);
+    });
+  });
+}
+
+/* ════════════════════════════════
+   DOTS
+════════════════════════════════ */
+const dotsEl = document.getElementById('dots');
+for (let i = 0; i < TOTAL; i++) {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 0 ? ' on' : '');
+  d.onclick = () => goTo(i);
+  dotsEl.appendChild(d);
+}
+function updateDots() {
+  document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('on', i === cur));
+}
+
+/* ════════════════════════════════
+   MUSIC
+════════════════════════════════ */
+const mus = document.getElementById('mus');
+mus.volume = 0.35;
+let playing = false;
+
+function tryMusic() {
+  if (playing) return;
+  mus.play().then(() => { playing = true; document.getElementById('mb').textContent = '🎶'; }).catch(() => {});
+}
+function toggleMusic() {
+  if (playing) { mus.pause(); playing = false; document.getElementById('mb').textContent = '🎵'; }
+  else { mus.play().then(() => { playing = true; document.getElementById('mb').textContent = '🎶'; }).catch(() => {}); }
+}
+window.addEventListener('load', () => tryMusic());
+
+/* ════════════════════════════════
+   TICKER REASONS
+════════════════════════════════ */
+const r1 = [
+  ['😊','Your smile lights up my world'],['🌙','The way you say goodnight'],
+  ['🧠','Your brilliant mind'],['💪','Your incredible strength'],
+  ['🎵','Songs you share with me'],['🤗','Your warm, safe hugs'],
+  ['🌹','How deeply you love'],['✨','You make everything sparkle'],
+];
+const r2 = [
+  ['🦋','The butterflies I still get'],['🍵','Quiet cozy moments together'],
+  ['😂','You make me laugh like no one'],['🌻','Your contagious positivity'],
+  ['💌','Every little message from you'],['🎀','The adorable way you do things'],
+  ['🔮','The future I dream of with you'],['💫','You are simply magnetic'],
+];
+function buildTicker(id, data) {
+  const el = document.getElementById(id);
+  [...data, ...data].forEach(([e, t]) => {
+    const p = document.createElement('div');
+    p.className = 'pill';
+    p.innerHTML = `<span>${e}</span><span>${t}</span>`;
+    el.appendChild(p);
+  });
+}
+buildTicker('t1', r1);
+buildTicker('t2', r2);
+
+/* ════════════════════════════════
+   MOOD
+════════════════════════════════ */
+const moodTxt = {
+  angry:  "I understand 😔 Take all the time you need.",
+  sad:    "I'm so sorry I made you feel this way 🥺",
+  think:  "Take your time, love. No pressure at all 🌸",
+  soft:   "That flutter gives me so much hope 🥰 I love you.",
+  love:   "You just made my heart explode 💖✨",
+};
+document.querySelector('.mrow').addEventListener('click', e => {
+  const b = e.target.closest('.mbt');
+  if (!b) return;
+  document.querySelectorAll('.mbt').forEach(x => x.classList.remove('on'));
+  b.classList.add('on');
+  const r = document.getElementById('mrsp');
+  r.classList.remove('show');
+  r.textContent = moodTxt[b.dataset.m] || '';
+  void r.offsetWidth;
+  r.classList.add('show');
+  document.getElementById('mn').style.display = 'inline-flex';
+  if (['soft','love'].includes(b.dataset.m)) burst(22);
+});
+
+/* ════════════════════════════════
+   FORGIVE
+════════════════════════════════ */
+function handleYes() { burst(100); setTimeout(() => goTo(6), 400); }
+
+let noN = 0;
+const noTxt = [
+  "Okay… I'll keep trying 🥺",
+  "I understand. I'll be patient 💕",
+  "Your feelings are valid. I'm so sorry 🌷",
+  "I'll wait as long as it takes 🕊️",
+  "Still here. Still yours. Always 💖",
+  "Please… I love you so much 🥺",
+];
+function handleNo() {
+  const b = document.getElementById('nb');
+  b.classList.remove('shk'); void b.offsetWidth; b.classList.add('shk');
+  b.addEventListener('animationend', () => b.classList.remove('shk'), { once: true });
+  document.getElementById('nc').textContent = noTxt[noN++ % noTxt.length];
+}
+
+/* ════════════════════════════════
+   CONFETTI
+════════════════════════════════ */
+function burst(n = 50) {
+  const w = document.getElementById('cf');
+  w.innerHTML = '';
+  const s = ['💖','💕','🌸','✨','🌷','💗','🦋','⭐','🎀','🌹'];
+  for (let i = 0; i < n; i++) {
+    const p = document.createElement('div');
+    p.textContent = s[Math.floor(Math.random() * s.length)];
+    const dur = (Math.random() * 1.2 + 1).toFixed(2);
+    const del = (Math.random() * .8).toFixed(2);
+    p.style.cssText = `
+      position:absolute;font-size:${Math.random()*16+9}px;
+      left:${Math.random()*100}vw;top:${Math.random()*50+10}vh;
+      animation:cf ${dur}s ${del}s ease-out forwards;
+      pointer-events:none;user-select:none;`;
+    w.appendChild(p);
+  }
+  setTimeout(() => { w.innerHTML = ''; }, 3200);
+}
+
+/* ════════════════════════════════
+   FLOATING HEARTS CANVAS
+════════════════════════════════ */
+const cv  = document.getElementById('hc');
+const ctx = cv.getContext('2d');
+let W, H;
+const resize = () => { W = cv.width = innerWidth; H = cv.height = innerHeight; };
+resize(); window.addEventListener('resize', resize);
+
+const mkH = (born) => ({
+  x: Math.random() * (W || innerWidth),
+  y: born ? innerHeight + 20 : Math.random() * innerHeight,
+  sz: Math.random() * 15 + 6,
+  sp: Math.random() * .55 + .2,
+  op: Math.random() * .3 + .07,
+  dr: (Math.random() - .5) * .45,
+  cl: ['#ff6b9d','#c14ac8','#ffb3cc','#d87cdd','#ff4081'][Math.random()*5|0],
+  wb: Math.random() * Math.PI * 2,
+  ws: Math.random() * .025 + .01,
+});
+const HH = Array.from({length:24}, () => mkH(false));
+
+function dHeart(x, y, sz, cl, op) {
+  ctx.save(); ctx.globalAlpha = op; ctx.fillStyle = cl;
+  ctx.beginPath();
+  const s = sz / 2;
+  ctx.moveTo(x, y + s*.3);
+  ctx.bezierCurveTo(x, y - s*.5, x-s, y-s*.5, x-s, y+s*.3);
+  ctx.bezierCurveTo(x-s, y+s*1.1, x, y+s*1.6, x, y+s*1.6);
+  ctx.bezierCurveTo(x, y+s*1.6, x+s, y+s*1.1, x+s, y+s*.3);
+  ctx.bezierCurveTo(x+s, y-s*.5, x, y-s*.5, x, y+s*.3);
+  ctx.closePath(); ctx.fill(); ctx.restore();
+}
+
+(function loop() {
+  ctx.clearRect(0, 0, W, H);
+  HH.forEach((h, i) => {
+    h.y -= h.sp; h.wb += h.ws; h.x += Math.sin(h.wb) * h.dr;
+    if (h.y + h.sz * 2 < 0) HH[i] = mkH(true);
+    dHeart(h.x, h.y, h.sz, h.cl, h.op);
+  });
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
